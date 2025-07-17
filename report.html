@@ -104,6 +104,7 @@
             border-radius: 8px;
             background-color: #f8f9fa;
             transition: transform 0.3s, box-shadow 0.3s;
+            position: relative; /* Added for positioning rank badge */
         }
         .candidate-card:hover {
             transform: translateY(-3px);
@@ -142,17 +143,9 @@
             margin-bottom: 5px;
         }
         .candidate-number {
-            background-color: var(--primary-color);
-            color: white;
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            margin-right: 15px;
-            flex-shrink: 0;
+            color: var(--primary-color);
+            font-size: 14px;
+            margin-bottom: 5px;
         }
         .candidate-details {
             display: flex;
@@ -171,6 +164,17 @@
             color: var(--success-color);
             font-size: 14px;
             font-weight: 500;
+        }
+        .rank-badge {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background-color: var(--primary-color);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            font-weight: bold;
         }
         .footer {
             margin-top: 20px;
@@ -259,16 +263,10 @@
                 width: 50px;
                 height: 50px;
             }
-            .candidate-number {
-                width: 25px;
-                height: 25px;
-                font-size: 14px;
-                margin-right: 10px;
-            }
             .candidate-name {
                 font-size: 15px;
             }
-            .candidate-party, .candidate-votes, .vote-percentage {
+            .candidate-party, .candidate-votes, .vote-percentage, .candidate-number {
                 font-size: 13px;
             }
             .print-button {
@@ -277,6 +275,10 @@
             }
             .bottom-nav {
                 display: block;
+            }
+            .rank-badge {
+                font-size: 11px;
+                padding: 4px 8px;
             }
         }
         @media (max-width: 400px) {
@@ -307,16 +309,15 @@
                 width: 45px;
                 height: 45px;
             }
-            .candidate-number {
-                width: 22px;
-                height: 22px;
-                font-size: 12px;
-            }
             .bottom-nav a i {
                 font-size: 20px;
             }
             .bottom-nav a span {
                 font-size: 10px;
+            }
+            .rank-badge {
+                font-size: 10px;
+                padding: 3px 6px;
             }
         }
         @media print {
@@ -382,17 +383,15 @@
                 height: 15mm;
                 margin-right: 5mm;
             }
-            .candidate-number {
-                width: 8mm;
-                height: 8mm;
-                font-size: 10pt;
-                margin-right: 5mm;
-            }
             .candidate-name {
                 font-size: 12pt;
             }
-            .candidate-party, .candidate-votes, .vote-percentage {
+            .candidate-party, .candidate-votes, .vote-percentage, .candidate-number {
                 font-size: 10pt;
+            }
+            .rank-badge {
+                font-size: 10pt;
+                padding: 3mm 5mm;
             }
             .footer {
                 margin-top: 10mm;
@@ -428,7 +427,7 @@
                     <i class="fas fa-chart-bar"></i>
                     <span>รายงาน</span>
                 </a>
-                <a href="reset.html">
+                <a href="reset.html" class="disable">
                     <i class="fas fa-undo"></i>
                     <span>รีเซ็ต</span>
                 </a>
@@ -464,7 +463,7 @@
         <button class="print-button" onclick="window.print()">พิมพ์ผลการเลือกตั้ง</button>
         <div class="footer">
             <h6 class="text-lg font-semibold" style="font-size: 12px;color:black;">
-                <i class="far fa-copyright"></i> 2025 จัดทำโดย หน่วยงานความปลอดภัยCm2
+                <i class="far fa-copyright"></i> 2025 จัดทำโดย คณะสวัสดิการโรงงานCm2
             </h6>
         </div>
     </div>
@@ -667,16 +666,18 @@
                 rankingContainer.innerHTML = '';
                 candidatesWithVotes.forEach((candidate, index) => {
                     const percentage = totalVotes > 0 ? ((candidate.votes / totalVotes) * 100).toFixed(1) : 0;
+                    const rank = index + 1; // อันดับเริ่มจาก 1
                     
                     const card = document.createElement('div');
                     card.className = `candidate-card ${index === 0 ? 'rank-1' : ''}`;
                     card.innerHTML = `
+                        <div class="rank-badge">อันดับ ${rank}</div><br>
                         <div class="candidate-header">
-                            <div class="candidate-number">${candidate.number}</div>
                             <img src="${candidate.image}" alt="${candidate.name}" class="candidate-image">
                             <div class="candidate-info">
                                 <div class="candidate-name">${candidate.name}</div>
                                 <div class="candidate-party">${candidate.party}</div>
+                                <div class="candidate-number">หมายเลข ${candidate.number}</div>
                             </div>
                         </div>
                         <div class="candidate-details">
