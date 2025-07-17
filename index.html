@@ -390,10 +390,12 @@
         @media (max-width: 768px) {
             .bottom-nav {
                 display: block;
+                height: 60px; /* กำหนดความสูงคงที่ */
             }
             .login-container,
             .form-container {
-                padding-bottom: 80px;
+                padding-bottom: 70px; /* เพิ่มค่าให้มากกว่าความสูงของ Bottom Navigation */
+                margin-bottom: 80px; /* หรือใช้ margin-bottom แทน */
             }
         }
         @media (max-width: 400px) {
