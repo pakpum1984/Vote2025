@@ -428,6 +428,10 @@
                     <i class="fas fa-chart-bar"></i>
                     <span>รายงาน</span>
                 </a>
+                <a href="reset.html" class="disable">
+                    <i class="fas fa-undo"></i>
+                    <span>รีเซ็ต</span>
+                </a>
             </div>
         </nav>
         <div class="report-header">
@@ -441,26 +445,26 @@
         <div class="summary-card">
             <div class="summary-item">
                 <div class="summary-label">ผู้มีสิทธิ์เลือกตั้งทั้งหมด</div>
-                <div class="summary-value">1055</div>
+                <div class="summary-value" id="totalVoters">กำลังโหลด...</div>
             </div>
             <div class="summary-item">
                 <div class="summary-label">ผู้ที่มาเลือกตั้งแล้ว</div>
-                <div class="summary-value">4</div>
+                <div class="summary-value" id="voted">กำลังโหลด...</div>
             </div>
             <div class="summary-item">
                 <div class="summary-label">ผู้ที่ยังไม่มาเลือกตั้ง</div>
-                <div class="summary-value">1051</div>
+                <div class="summary-value" id="notVoted">กำลังโหลด...</div>
             </div>
             <div class="summary-item">
                 <div class="summary-label">ผู้ไม่ประสงค์ลงคะแนน</div>
-                <div class="summary-value">1</div>
+                <div class="summary-value" id="noVote">กำลังโหลด...</div>
             </div>
         </div>
         <div class="candidate-ranking" id="candidateRanking"></div>
         <button class="print-button" onclick="window.print()">พิมพ์ผลการเลือกตั้ง</button>
         <div class="footer">
             <h6 class="text-lg font-semibold" style="font-size: 12px;color:black;">
-                <i class="far fa-copyright"></i> 2025 จัดทำโดย คณะสวัสดิการโรงงานCm2
+                <i class="far fa-copyright"></i> 2025 จัดทำโดย หน่วยงานความปลอดภัยCm2
             </h6>
         </div>
     </div>
@@ -487,7 +491,7 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        // ตัวแปรเก็บข้อมูลผู้สมัคร (เหมือนใน index.html)
+        // ตัวแปรเก็บข้อมูลผู้สมัคร
         const candidates = [
             {
                 id: "1",
@@ -591,7 +595,51 @@
 
             // ดึงและแสดงผลการเลือกตั้ง
             renderElectionResults();
+            // ดึงและแสดงผลสรุป
+            renderSummary();
         });
+
+        // ฟังก์ชันแสดงผลสรุป
+        function renderSummary() {
+            const totalVotersEl = document.getElementById('totalVoters');
+            const votedEl = document.getElementById('voted');
+            const notVotedEl = document.getElementById('notVoted');
+            const noVoteEl = document.getElementById('noVote');
+
+            // ดึงข้อมูลผู้มีสิทธิ์เลือกตั้งทั้งหมด (employees)
+            db.ref('employees').on('value', (snapshot) => {
+                const employees = snapshot.val();
+                const totalVoters = employees ? Object.keys(employees).length : 0;
+                totalVotersEl.textContent = totalVoters;
+
+                // ดึงข้อมูลผู้ที่มาเลือกตั้งแล้ว (electionResponses)
+                db.ref('electionResponses').on('value', (snapshot) => {
+                    const responses = snapshot.val();
+                    const voted = responses ? Object.keys(responses).length : 0;
+                    votedEl.textContent = voted;
+
+                    // คำนวณผู้ที่ยังไม่มาเลือกตั้ง
+                    const notVoted = totalVoters - voted;
+                    notVotedEl.textContent = notVoted;
+
+                    // ดึงข้อมูลผู้ไม่ประสงค์ลงคะแนน (candidateVotes/11)
+                    db.ref('candidateVotes/11').on('value', (snapshot) => {
+                        const noVote = snapshot.val() || 0;
+                        noVoteEl.textContent = noVote;
+                    }, (error) => {
+                        console.error('Error fetching no vote count:', error);
+                        noVoteEl.textContent = 'เกิดข้อผิดพลาด';
+                    });
+                }, (error) => {
+                    console.error('Error fetching election responses:', error);
+                    votedEl.textContent = 'เกิดข้อผิดพลาด';
+                    notVotedEl.textContent = 'เกิดข้อผิดพลาด';
+                });
+            }, (error) => {
+                console.error('Error fetching employees:', error);
+                totalVotersEl.textContent = 'เกิดข้อผิดพลาด';
+            });
+        }
 
         // ฟังก์ชันแสดงผลการเลือกตั้ง
         function renderElectionResults() {
