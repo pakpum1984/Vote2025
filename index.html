@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <title>ระบบเลือกตั้งออนไลน์</title>
+    <style>
+
+      
+        :root {
+            --primary-color: #007bff;
+            --secondary-color: #6c757d;
+            --success-color: #28a745;
+            --dark-color: #343a40;
+        }
+        body {
+            font-family: 'Prompt', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+            color: #202124;
+        }
+        /* สไตล์สำหรับหน้าล็อกอิน */
+        .login-container {
+            max-width: 400px;
+            margin: 50px auto;
+            background-color: white;
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
+            text-align: center;
+            border-top: 5px solid var(--primary-color);
+            border-bottom: 5px solid var(--primary-color);
+        }
+        .login-header {
+            border-bottom: 1px solid #dadce0;
+            padding-bottom: 16px;
+            margin-bottom: 20px;
+        }
+        .login-title {
+            font-size: 24px;
+            margin: 8px 0;
+            color: var(--primary-color);
+        }
+        .login-description {
+            font-size: 16px;
+            color: #555;
+            margin-top: 0px;
+        }
+        .login-input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+            font-family: 'Prompt', sans-serif;
+            text-align: center;
+            pointer-events: none;
+        }
+        .keypad-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin: 20px auto;
+            max-width: 300px;
+        }
+        .keypad-button {
+            background-color: #f8f9fa;
+            border: 1px solid #dadce0;
+            border-radius: 50px;
+            padding: 15px;
+            font-size: 18px;
+            font-family: 'Prompt', sans-serif;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .keypad-button:hover {
+            background-color: #e8f0fe;
+        }
+        .keypad-button.delete {
+            background-color: #ffebee;
+        }
+        .keypad-button.delete:hover {
+            background-color: #ffcdd2;
+        }
+        .keypad-button.confirm {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+        }
+        .keypad-button.confirm:hover {
+            background-color: #1765cc;
+        }
+        /* สไตล์สำหรับฟอร์มเลือกตั้ง */
+        .form-container {
+            max-width: 800px;
+            margin: 32px auto;
+            background-color: white;
+            border-radius: 8px;
+            padding: 24px;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
+            border-top: 5px solid var(--primary-color);
+            border-bottom: 5px solid var(--primary-color);
+            display: none;
+        }
+        .form-header {
+            border-bottom: 1px solid #dadce0;
+            padding-bottom: 16px;
+            margin-bottom: 16px;
+        }
+        .form-title {
+            font-size: 23px;
+            font-weight: 400;
+            margin: 8px 0;
+            color: var(--primary-color);
+        }
+        .form-description {
+            font-size: 16px;
+            color: #555;
+            margin-top: 0px;
+        }
+        .welcome-message {
+            font-size: 18px;
+            color: #202124;
+            margin-top: 10px;
+            font-weight: 500;
+        }
+        .question-container {
+            margin-bottom: 24px;
+            padding: 16px;
+            border: 1px solid #dadce0;
+            border-radius: 8px;
+            position: relative;
+        }
+        .question-title {
+            font-size: 16px;
+            margin-bottom: 16px;
+            color: #202124;
+        }
+        .required-star {
+            color: #d93025;
+            margin-left: 4px;
+        }
+        .text-input {
+            width: 100%;
+            padding: 8px 0;
+            border: none;
+            border-bottom: 1px solid #dadce0;
+            font-size: 14px;
+            outline: none;
+            font-family: 'Prompt', sans-serif;
+        }
+        .text-input:focus {
+            border-bottom: 2px solid #1a73e8;
+            margin-bottom: -1px;
+        }
+        .radio-option, .checkbox-option {
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+        }
+        .radio-input, .checkbox-input {
+            margin-right: 12px;
+            width: 20px;
+            height: 20px;
+        }
+        .option-label {
+            font-size: 14px;
+        }
+        .submit-button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 10px 24px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            margin-top: 16px;
+            font-family: 'Prompt', sans-serif;
+            transition: all 0.3s;
+        }
+        .submit-button:hover {
+            background-color: #1765cc;
+            box-shadow: 0 1px 2px 0 rgba(66,133,244,0.3),
+                        0 1px 3px 1px rgba(66,133,244,0.15);
+        }
+        .hidden-field {
+            display: none;
+            margin-left: 20px;
+            margin-top: 10px;
+        }
+        .input-error {
+            border: 1px solid red !important;
+        }
+        .error-message {
+            color: #d93025;
+            font-size: 14px;
+            margin-top: 5px;
+            display: none;
+        }
+        .footer {
+            margin-top: 20px;
+            text-align: center;
+        }
+        /* สไตล์สำหรับผู้สมัคร */
+        .candidates-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .candidate-card {
+            display: flex;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+            transition: all 0.3s;
+            cursor: pointer;
+            position: relative;
+            height: 150px;
+        }
+        .candidate-card:hover {
+            border-color: var(--primary-color);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .candidate-card.selected {
+            border: 2px solid var(--success-color);
+            background-color: rgba(40, 167, 69, 0.05);
+        }
+        .candidate-image-container {
+            flex: 0 0 50%;
+            overflow: hidden;
+        }
+        .candidate-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .candidate-info {
+            flex: 0 0 50%;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .candidate-name {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: var(--dark-color);
+            font-size: 16px;
+        }
+        .candidate-party {
+            color: var(--secondary-color);
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+        .candidate-number {
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 5px;
+            display: inline-block;
+            font-weight: bold;
+            padding: 5px 10px;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+        .vote-confirm {
+            display: none;
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+        .selected-candidate {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 15px;
+        }
+        .selected-candidate img {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            margin-right: 15px;
+        }
+        .selected-info {
+            text-align: left;
+        }
+        @media only screen and (max-width: 600px) {
+            .login-container {
+                margin: 30px 16px;
+                padding: 20px;
+                width: calc(100% - 32px);
+            }
+            .form-container {
+                margin: 16px 12px;
+                padding: 16px 12px 24px 12px;
+                width: calc(100% - 24px);
+            }
+            .login-title {
+                font-size: 20px;
+            }
+            .login-description {
+                font-size: 14px;
+            }
+            .form-title {
+                font-size: 20px;
+            }
+            .form-description {
+                font-size: 14px;
+            }
+            .welcome-message {
+                font-size: 16px;
+            }
+            .question-title {
+                font-size: 14px;
+                margin-bottom: 12px;
+            }
+            .text-input {
+                font-size: 13px;
+            }
+            .submit-button {
+                padding: 8px 16px;
+                font-size: 13px;
+            }
+            .keypad-button {
+                padding: 12px;
+                font-size: 16px;
+            }
+            .candidates-container {
+                grid-template-columns: 1fr;
+            }
+            .candidate-card {
+                height: 120px;
+            }
+            .candidate-name {
+                font-size: 14px;
+            }
+            .candidate-party {
+                font-size: 12px;
+            }
+            .candidate-number {
+                font-size: 12px;
+                padding: 3px 8px;
+            }
+        }
+        .privacy-link {
+            color: var(--primary-color);
+            text-decoration: none;
+            margin-left: 5px;
+            font-weight: 500;
+        }
+        .privacy-link:hover {
+            text-decoration: underline;
+        }
+        .checkbox-option {
+            align-items: flex-start;
+        }
+        .checkbox-input {
+            margin-top: 3px;
+        }
+        /* Bottom Navigation */
+        .bottom-nav {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: var(--dark-color);
+            box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.3);
+            z-index: 2000;
+            padding: 8px 0;
+        }
+        .bottom-nav .nav-items {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        .bottom-nav a {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            text-align: center;
+            flex: 1;
+            padding: 6px 0;
+            transition: all 0.3s;
+            border-radius: 8px;
+            margin: 0 4px;
+        }
+        .bottom-nav a.active {
+            color: white;
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        .bottom-nav a.disable {
+            color: rgba(255, 255, 255, 0.4);
+            pointer-events: none;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+        .bottom-nav a i {
+            display: block;
+            font-size: 22px;
+            margin-bottom: 2px;
+        }
+        .bottom-nav a span {
+            font-size: 11px;
+            line-height: 1.2;
+        }
+        @media (max-width: 768px) {
+            .bottom-nav {
+                display: block;
+            }
+            .login-container,
+            .form-container {
+                padding-bottom: 70px;
+                margin-bottom: 80px;
+            }
+        }
+        @media (max-width: 400px) {
+            .bottom-nav a i {
+                font-size: 20px;
+            }
+            .bottom-nav a span {
+                font-size: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- หน้าล็อกอิน -->
+    <div id="loginSection" class="login-container">
+        <nav class="bottom-nav">
+            <div class="nav-items">
+                <a href="#" class="disable">
+                    <i class="fas fa-cog"></i>
+                    <span>ตั้งค่า</span>
+                </a>
+                <a href="voters.html" class="disable">
+                    <i class="fas fa-users"></i>
+                    <span>พนักงาน</span>
+                </a>
+                <a href="#" class="disable">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>แดชบอร์ด</span>
+                </a>
+                <a href="index.html" class="active">
+                    <i class="fas fa-file-alt"></i>
+                    <span>แบบฟอร์ม</span>
+                </a>
+                <a href="report.html" class="active">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>รายงาน</span>
+                </a>
+            </div>
+        </nav>
+        <div class="login-header">
+            <center>
+               <h4 style="color: var(--primary-color);">ระบบเลือกตั้งออนไลน์</h4>
+                <div class="login-description">
+                    บริษัท เชียงใหม่โฟรเซ่นฟูดส์ จำกัด(มหาชน) Cm2
+                </div>
+               
+            </center>
+        </div>
+        <div class="question-container">
+            <div class="question-title">กรอกรหัสพนักงาน<span class="required-star">*</span></div>
+            <input type="text" class="login-input" id="loginEmployeeId" placeholder="รหัสพนักงาน" readonly>
+            <div id="loginError" class="error-message"></div>
+            <div class="keypad-container">
+                <button class="keypad-button" data-value="1">1</button>
+                <button class="keypad-button" data-value="2">2</button>
+                <button class="keypad-button" data-value="3">3</button>
+                <button class="keypad-button" data-value="4">4</button>
+                <button class="keypad-button" data-value="5">5</button>
+                <button class="keypad-button" data-value="6">6</button>
+                <button class="keypad-button" data-value="7">7</button>
+                <button class="keypad-button" data-value="8">8</button>
+                <button class="keypad-button" data-value="9">9</button>
+                <button class="keypad-button delete">ลบ</button>
+                <button class="keypad-button" data-value="0">0</button>
+                <button class="keypad-button confirm">ยืนยัน</button>
+            </div>
+        </div>
+        <div class="footer">
+            <h6 class="text-lg font-semibold" style="font-size: 12px;color:black;">
+                <i class="far fa-copyright"></i> 2025 จัดทำโดย คณะสวัสดิการโรงงานCm2
+            </h6>
+        </div>
+    </div>
+
+    <!-- หน้ารายชื่อผู้สมัครและลงคะแนน -->
+    <div id="formSection" class="form-container">
+        <div class="form-header">
+            <center>
+               <h4 style="color: var(--primary-color);">ระบบเลือกตั้งออนไลน์</h4>
+                <div class="form-description">
+                    บริษัท เชียงใหม่โฟรเซ่นฟูดส์ จำกัด(มหาชน) Cm2
+                </div>
+                <!-- <div class="form-title">ระบบเลือกตั้งออนไลน์</div> -->
+                <div class="welcome-message" id="welcomeMessage"></div>
+            </center>
+        </div>
+        <form id="electionForm">
+            <div class="question-container">
+                <div class="question-title">1.กรุณาเลือกผู้สมัครที่ต้องการ (เลือกได้ 1 คน)<span class="required-star">*</span></div>
+                <div id="candidatesContainer" class="candidates-container"></div>
+                <div id="voteConfirm" class="vote-confirm">
+                    <div class="selected-candidate">
+                        <img id="selectedCandidateImage" src="" alt="ผู้สมัคร">
+                        <div class="selected-info">
+                            <div id="selectedCandidateName" class="candidate-name"></div>
+                            <div id="selectedCandidateParty" class="candidate-party"></div>
+                            <div>หมายเลข <span id="selectedCandidateNumber" style="font-weight: bold;"></span></div>
+                        </div>
+                    </div>
+                   <center> <div class="question-title">ยืนยันการเลือกผู้สมัครนี้หรือไม่?</div>
+                    <button type="button" id="changeSelection" class="submit-button" style="background-color: var(--secondary-color); margin-right: 10px;">เปลี่ยนการเลือก</button>
+                    <button type="button" id="confirmVote" class="submit-button" style="background-color: var(--success-color);">ยืนยันการเลือก</button></center>
+                </div>
+            </div>
+            <div class="question-container">
+                <div class="question-title">2.ยินยอมให้ใช้ข้อมูล<span class="required-star">*</span></div>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="consentCheckbox" required>
+                    <label class="form-check-label" for="consentCheckbox">
+                        ข้าพเจ้ายินยอมให้บริษัทใช้ข้อมูลการเลือกตั้งนี้เพื่อวัตถุประสงค์ในการบริหารงานเท่านั้น
+                    </label>
+                </div>
+            </div>
+            <input type="hidden" id="selectedCandidateId" name="selectedCandidateId" value="">
+        </form>
+        <div class="question-title" style="font-size: 13px;"><span class="required-star me-2">*</span>เป็นคำถามที่ต้องระบุ</div>
+        <br><br><br><hr><br>
+        <center>
+            <div class="footer">
+                <h6 class="text-lg font-semibold" style="font-size: 12px;color:black;">
+                    <i class="far fa-copyright"></i> 2025 จัดทำโดย คณะสวัสดิการโรงงานCm2
+                </h6>
+            </div>
+        </center>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-database-compat.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const links = document.querySelectorAll('.bottom-nav a');
+            links.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    links.forEach(l => l.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+
+            // Set active link based on current page
+            const currentPath = window.location.pathname.split('/').pop() || 'index.html';
+            links.forEach(link => {
+                const href = link.getAttribute('href');
+                if (href === currentPath) {
+                    link.classList.add('active');
+                } else {
+                    link.classList.remove('active');
+                }
+            });
+        });
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCWRIFj6NHeHkXL1bIEbb93lUzaZf8NNmI",
+            authDomain: "fir-crud-b7960.firebaseapp.com",
+            databaseURL: "https://fir-crud-b7960-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "fir-crud-b7960",
+            storageBucket: "fir-crud-b7960.firebasestorage.app",
+            messagingSenderId: "32150734884",
+            appId: "1:32150734884:web:58b01e9f4ba0d9b9a170b1",
+            measurementId: "G-K97E7L101D"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        // ตัวแปรเก็บข้อมูลพนักงานปัจจุบัน
+        let currentEmployee = null;
+        // ตัวแปรเก็บข้อมูลผู้สมัคร
+        let candidates = [
+            {
+                id: "1",
+                number: "เบอร์ 1",
+                name: "นายสมชาย ใจดี",
+                party: "พรรคพัฒนา",
+                image: "https://randomuser.me/api/portraits/men/1.jpg"
+            },
+            {
+                id: "2",
+                number: "เบอร์ 2",
+                name: "นางสาวสมหญิง สุขใจ",
+                party: "พรรครักสามัคคี",
+                image: "https://randomuser.me/api/portraits/women/1.jpg"
+            },
+            {
+                id: "3",
+                number: "เบอร์ 3",
+                name: "นายสมหมาย ตั้งใจ",
+                party: "พรรคเพื่อองค์กร",
+                image: "https://randomuser.me/api/portraits/men/2.jpg"
+            },
+            {
+                id: "4",
+                number: "เบอร์ 4",
+                name: "นางสาวสมศรี มีสุข",
+                party: "พรรคก้าวหน้า",
+                image: "https://randomuser.me/api/portraits/women/2.jpg"
+            },
+            {
+                id: "5",
+                number: "เบอร์ 5",
+                name: "นายสมาน มานะ",
+                party: "พรรคเพื่อพนักงาน",
+                image: "https://randomuser.me/api/portraits/men/3.jpg"
+            },
+            {
+                id: "6",
+                number: "เบอร์ 6",
+                name: "นางสาวสมร นุ่มนวล",
+                party: "พรรคสร้างสรรค์",
+                image: "https://randomuser.me/api/portraits/women/3.jpg"
+            },
+            {
+                id: "7",
+                number: "เบอร์ 7",
+                name: "นายสมคิด จริงใจ",
+                party: "พรรคความหวังใหม่",
+                image: "https://randomuser.me/api/portraits/men/4.jpg"
+            },
+            {
+                id: "8",
+                number: "เบอร์ 8",
+                name: "นางสาวสมฤดี ใสสะอาด",
+                party: "พรรคเพื่อทุกคน",
+                image: "https://randomuser.me/api/portraits/women/4.jpg"
+            },
+            {
+                id: "9",
+                number: "เบอร์ 9",
+                name: "นายสมศักดิ์ เก่งรอบด้าน",
+                party: "พรรคประสิทธิภาพ",
+                image: "https://randomuser.me/api/portraits/men/5.jpg"
+            },
+            {
+                id: "10",
+                number: "เบอร์ 10",
+                name: "นางสาวสมบูรณ์ สมใจ",
+                party: "พรรคความสุข",
+                image: "https://randomuser.me/api/portraits/women/5.jpg"
+            },
+            {
+                id: "11",
+                number: "novote",
+                name: "ไม่ประสงค์ลงคะแนน",
+                party: "ไม่ประสงค์ลงคะแนน",
+                image: "https://cmfrozen-387fd.web.app/vote/images/voteno.jpeg"
+            }
+        ];
+        // ตัวแปรเก็บผู้สมัครที่เลือก
+        let selectedCandidate = null;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // ตั้งค่าปุ่ม keypad สำหรับหน้า login
+            const employeeIdInput = document.getElementById('loginEmployeeId');
+            const loginError = document.getElementById('loginError');
+            const keypadButtons = document.querySelectorAll('.keypad-button');
+
+            keypadButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const value = this.getAttribute('data-value');
+                    if (this.classList.contains('delete')) {
+                        employeeIdInput.value = employeeIdInput.value.slice(0, -1);
+                    } else if (this.classList.contains('confirm')) {
+                        checkEmployeeLogin();
+                    } else {
+                        employeeIdInput.value += value;
+                    }
+                });
+            });
+
+            // รักษาการทำงานของ Enter key
+            employeeIdInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    checkEmployeeLogin();
+                }
+            });
+
+            // ตั้งค่าฟอร์มเลือกตั้ง
+            document.getElementById('electionForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+            });
+
+            // ปุ่มเปลี่ยนการเลือก
+            document.getElementById('changeSelection').addEventListener('click', function() {
+                document.getElementById('voteConfirm').style.display = 'none';
+                document.querySelectorAll('.candidate-card').forEach(card => {
+                    card.classList.remove('selected');
+                    card.style.display = 'flex';
+                });
+                selectedCandidate = null;
+                document.getElementById('selectedCandidateId').value = '';
+            });
+
+            // ปุ่มยืนยันการเลือก
+            document.getElementById('confirmVote').addEventListener('click', submitVote);
+
+            // แสดงรายชื่อผู้สมัคร
+            renderCandidates();
+        });
+
+        // ฟังก์ชันแสดงรายชื่อผู้สมัคร
+        function renderCandidates() {
+            const container = document.getElementById('candidatesContainer');
+            container.innerHTML = '';
+            candidates.forEach(candidate => {
+                const card = document.createElement('div');
+                card.className = 'candidate-card';
+                card.innerHTML = `
+                    <div class="candidate-image-container">
+                        <img src="${candidate.image}" alt="${candidate.name}" class="candidate-image">
+                    </div>
+                    <div class="candidate-info">
+                        <div class="candidate-number">${candidate.number}</div>
+                        <div class="candidate-name">${candidate.name}</div>
+                        <div class="candidate-party">${candidate.party}</div>
+                    </div>
+                `;
+                card.addEventListener('click', () => selectCandidate(candidate));
+                container.appendChild(card);
+            });
+        }
+
+        // ฟังก์ชันเลือกผู้สมัคร
+        function selectCandidate(candidate) {
+            const cards = document.querySelectorAll('.candidate-card');
+            cards.forEach(card => {
+                card.classList.remove('selected');
+                card.style.display = 'none';
+            });
+            
+            // Find and select the clicked card
+            for (let i = 0; i < cards.length; i++) {
+                const candidateNumber = cards[i].querySelector('.candidate-number').textContent;
+                if (candidateNumber === candidate.number.toString()) {
+                    cards[i].classList.add('selected');
+                    cards[i].style.display = 'flex';
+                    break;
+                }
+            }
+            
+            selectedCandidate = candidate;
+            document.getElementById('selectedCandidateId').value = candidate.id;
+            document.getElementById('selectedCandidateImage').src = candidate.image;
+            document.getElementById('selectedCandidateName').textContent = candidate.name;
+            document.getElementById('selectedCandidateParty').textContent = candidate.party;
+            document.getElementById('selectedCandidateNumber').textContent = candidate.number;
+            document.getElementById('voteConfirm').style.display = 'block';
+            document.getElementById('voteConfirm').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // ฟังก์ชันตรวจสอบการล็อกอิน
+        async function checkEmployeeLogin() {
+            const employeeId = document.getElementById('loginEmployeeId').value.trim();
+            const loginError = document.getElementById('loginError');
+
+            if (!employeeId) {
+                loginError.textContent = 'กรุณากรอกรหัสพนักงาน';
+                loginError.style.display = 'block';
+                return;
+            }
+
+            try {
+                Swal.fire({
+                    position: 'center',
+                    title: '<h4>กำลังตรวจสอบรหัสพนักงาน...</h4>',
+                    showConfirmButton: false,
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+
+                const [employeeSnapshot, duplicateSnapshot] = await Promise.all([
+                    db.ref(`employees/${employeeId}`).once('value'),
+                    db.ref(`electionResponses/${employeeId}`).once('value')
+                ]);
+
+                const employee = employeeSnapshot.val();
+
+                if (employee) {
+                    if (duplicateSnapshot.exists()) {
+                        Swal.fire({
+                            position: 'center',
+                            icon: 'warning',
+                            title: '<h4>แจ้งเตือน</h4>',
+                            html: '<h5>รหัสพนักงานนี้ได้ทำการลงคะแนนแล้ว</h5>',
+                            showConfirmButton: true,
+                            allowOutsideClick: false
+                        });
+                    } else {
+                        currentEmployee = {
+                            id: employeeId,
+                            name: employee.name,
+                            department: employee.department
+                        };
+
+                        // ตั้งค่าข้อความต้อนรับ
+                        document.getElementById('welcomeMessage').textContent = 
+                            `รหัสพนักงาน ${employeeId} ${employee.name} แผนก ${employee.department} `;
+
+                        // ซ่อนหน้าล็อกอินและแสดงฟอร์ม
+                        document.getElementById('loginSection').style.display = 'none';
+                        document.getElementById('formSection').style.display = 'block';
+
+                        Swal.close();
+                    }
+                } else {
+                    Swal.fire({
+                        position: 'center',
+                        icon: 'error',
+                        title: '<h4>ไม่พบข้อมูล</h4>',
+                        html: '<h5>รหัสพนักงานที่กรอกไม่ถูกต้อง</h5>',
+                        showConfirmButton: true,
+                        allowOutsideClick: false,
+                        didClose: () => {
+                            document.getElementById('loginEmployeeId').focus();
+                        }
+                    });
+                }
+            } catch (error) {
+                console.error('Error checking employee:', error);
+                Swal.fire({
+                    position: 'center',
+                    icon: 'error',
+                    title: '<h4>เกิดข้อผิดพลาด</h4>',
+                    html: '<h5>ไม่สามารถตรวจสอบข้อมูลพนักงานได้</h5>',
+                    showConfirmButton: true,
+                    allowOutsideClick: false
+                });
+            }
+        }
+
+        // ฟังก์ชันส่งคะแนนเสียง
+        async function submitVote() {
+            if (!validateForm()) return;
+
+            const voteData = {
+                candidateId: selectedCandidate.id,
+                candidateName: selectedCandidate.name,
+                candidateNumber: selectedCandidate.number,
+                candidateParty: selectedCandidate.party,
+                candidateImage: selectedCandidate.image,
+                timestamp: new Date().toISOString()
+            };
+
+            const voterData = {
+                employeeId: currentEmployee.id,
+                fullName: currentEmployee.name,
+                department: currentEmployee.department,
+                consent: document.getElementById('consentCheckbox').checked ? 'ยินยอม' : 'ไม่ยินยอม',
+                consentTimestamp: document.getElementById('consentCheckbox').checked ? new Date().toISOString() : null,
+                timestamp: new Date().toISOString()
+            };
+
+            try {
+                Swal.fire({
+                    position: 'center',
+                    title: '<h4>กำลังบันทึกข้อมูล...</h4>',
+                    showConfirmButton: false,
+                    allowOutsideClick: false,
+                    didOpen: () => Swal.showLoading()
+                });
+
+                const voteId = db.ref('votes').push().key;
+                await Promise.all([
+                    db.ref(`votes/${voteId}`).set(voteData),
+                    db.ref(`electionResponses/${currentEmployee.id}`).set(voterData),
+                    db.ref(`candidateVotes/${selectedCandidate.id}`).transaction(current => {
+                        return (current || 0) + 1;
+                    })
+                ]);
+
+                Swal.fire({
+                    position: 'center',
+                    icon: 'success',
+                    title: '<h4>ลงคะแนนสำเร็จ</h4>',
+                    html: '<h5>ขอบคุณที่ใช้สิทธิ์เลือกตั้ง</h5>',
+                    showConfirmButton: false,
+                    allowOutsideClick: false,
+                    timer: 1500,
+                    didClose: () => {
+                        resetForm();
+                        document.getElementById('loginSection').style.display = 'block';
+                        document.getElementById('formSection').style.display = 'none';
+                        document.getElementById('loginEmployeeId').value = '';
+                        document.getElementById('loginEmployeeId').focus();
+                    }
+                });
+            } catch (error) {
+                console.error('Error:', error);
+                Swal.fire({
+                    position: 'center',
+                    icon: 'error',
+                    title: '<h4>เกิดข้อผิดพลาด</h4>',
+                    html: '<h5>ไม่สามารถบันทึกข้อมูลได้ กรุณาลองอีกครั้ง</h5>',
+                    showConfirmButton: true,
+                    allowOutsideClick: false
+                });
+            }
+        }
+
+        // ฟังก์ชันรีเซ็ตฟอร์ม
+        function resetForm() {
+            document.getElementById('electionForm').reset();
+            document.getElementById('voteConfirm').style.display = 'none';
+            document.querySelectorAll('.candidate-card').forEach(card => {
+                card.classList.remove('selected');
+                card.style.display = 'flex';
+            });
+            selectedCandidate = null;
+            currentEmployee = null;
+            document.getElementById('welcomeMessage').textContent = '';
+        }
+
+        // ฟังก์ชันตรวจสอบความถูกต้องของฟอร์ม
+        function validateForm() {
+            if (!selectedCandidate) {
+                Swal.fire({
+                    position: 'top',
+                    icon: 'warning',
+                    title: '<h4>กรุณากรอกข้อมูลให้ครบถ้วน</h4>',
+                    text: 'กรุณาเลือกผู้สมัครที่ต้องการ',
+                    showConfirmButton: true,
+                    allowOutsideClick: false
+                });
+                return false;
+            }
+            if (!document.getElementById('consentCheckbox').checked) {
+                Swal.fire({
+                    position: 'top',
+                    icon: 'warning',
+                    title: '<h4>กรุณากรอกข้อมูลให้ครบถ้วน</h4>',
+                    text: 'กรุณายินยอมให้ใช้ข้อมูล',
+                    showConfirmButton: true,
+                    allowOutsideClick: false
+                });
+                return false;
+            }
+            return true;
+        }
+    </script>
+</body>
+</html>
