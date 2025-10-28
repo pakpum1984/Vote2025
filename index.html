@@ -16,7 +16,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <title>9ระบบเลือกตั้งออนไลน์ - CM2</title>
+    <title>ระบบเลือกตั้งออนไลน์ - CM2</title>
     <style>
         :root {
             --primary-color: #007bff;
@@ -1001,9 +1001,7 @@
             }
         }
 
-        // ==================== VOTE SUBMISSION ====================
-// ==================== VOTE SUBMISSION ====================
-// ==================== VOTE SUBMISSION ====================
+// ==================== VOTE SUBMISSION (เวอร์ชันแก้ไข) ====================
 async function submitVote() {
     if (!validateForm()) return;
 
@@ -1021,8 +1019,16 @@ async function submitVote() {
     if (!result.isConfirmed) return;
 
     try {
-        // Ensure authentication
-        await ensureAuth();
+        // Ensure authentication (retry ถ้า fail)
+        let user = auth.currentUser;
+        if (!user) {
+            await initializeAuth();
+            user = auth.currentUser;
+        }
+        if (!user) {
+            throw new Error('ไม่สามารถยืนยันตัวตนได้');
+        }
+        console.log('Auth user UID:', user.uid); // Debug: ตรวจ UID
 
         const timestamp = new Date().toISOString();
         const voteHash = securityManager.generateVoteHash(
@@ -1031,7 +1037,7 @@ async function submitVote() {
             timestamp
         );
         
-        // Prepare vote data
+        // Prepare vote data (เพิ่ม validation)
         const voteData = {
             candidateId: selectedCandidate.id,
             candidateName: selectedCandidate.name,
@@ -1041,10 +1047,9 @@ async function submitVote() {
             timestamp: timestamp,
             voteHash: voteHash,
             employeeId: currentEmployee.id,
-            sessionId: auth.currentUser.uid
+            sessionId: user.uid  // ใช้ UID จริง
         };
 
-        // Prepare voter data
         const voterData = {
             employeeId: currentEmployee.id,
             fullName: currentEmployee.name,
@@ -1054,7 +1059,7 @@ async function submitVote() {
             voteHash: voteHash,
             candidateId: selectedCandidate.id,
             candidateName: selectedCandidate.name,
-            sessionId: auth.currentUser.uid
+            sessionId: user.uid
         };
 
         Swal.fire({
@@ -1065,24 +1070,39 @@ async function submitVote() {
             didOpen: () => Swal.showLoading()
         });
 
-        // Final duplicate check
-        const duplicateCheck = await db.ref(`electionResponses/${currentEmployee.id}`).once('value');
+        // Final duplicate check (เพิ่ม retry ถ้า offline)
+        let duplicateCheck;
+        let retryCount = 0;
+        while (retryCount < 3) {  // Retry 3 ครั้ง
+            try {
+                duplicateCheck = await db.ref(`electionResponses/${currentEmployee.id}`).once('value');
+                break;
+            } catch (err) {
+                retryCount++;
+                if (retryCount >= 3) throw err;
+                await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1s
+            }
+        }
+
         if (duplicateCheck.exists()) {
             throw new Error('มีการลงคะแนนด้วยรหัสพนักงานนี้แล้ว');
         }
 
-        // บันทึกข้อมูลแบบทีละขั้นตอน
-        console.log('กำลังบันทึก electionResponses...');
+        // บันทึกทีละขั้นตอน + logging
+        console.log('บันทึก electionResponses...');
         await db.ref(`electionResponses/${currentEmployee.id}`).set(voterData);
-        
-        console.log('กำลังบันทึก votes...');
-        await db.ref('votes').push(voteData);
+        console.log('OK: electionResponses');
 
-        console.log('กำลังอัปเดต candidateVotes...');
+        console.log('บันทึก votes...');
+        await db.ref('votes').push(voteData);
+        console.log('OK: votes');
+
+        console.log('อัปเดต candidateVotes...');
         const candidateVotesRef = db.ref(`candidateVotes/${selectedCandidate.id}`);
         const currentVotesSnapshot = await candidateVotesRef.once('value');
         const currentVotes = currentVotesSnapshot.val() || 0;
         await candidateVotesRef.set(currentVotes + 1);
+        console.log('OK: candidateVotes (new total:', currentVotes + 1, ')');
 
         await logAction('VOTE_SUBMITTED_SUCCESS', `Employee: ${currentEmployee.id}, Candidate: ${selectedCandidate.id}`);
 
@@ -1104,12 +1124,14 @@ async function submitVote() {
         });
 
     } catch (error) {
-        console.error('Error submitting vote:', error);
+        console.error('Error submitting vote:', error); // Debug: แสดง error เต็มใน console
         await logAction('VOTE_SUBMISSION_ERROR', `Error: ${error.message}`);
         
         let errorMessage = 'ไม่สามารถบันทึกข้อมูลได้ กรุณาลองอีกครั้ง';
         if (error.message.includes('PERMISSION_DENIED') || error.message.includes('permission_denied')) {
-            errorMessage = 'ไม่มีสิทธิ์ในการบันทึกข้อมูล กรุณาตรวจสอบ Firebase Security Rules';
+            errorMessage = 'ไม่มีสิทธิ์บันทึก (ตรวจสอบ Anonymous Auth และ Rules แล้วหรือยัง?)';
+        } else if (error.message.includes('NETWORK_ERROR') || !navigator.onLine) {
+            errorMessage = 'ไม่เชื่อมต่ออินเทอร์เน็ต ลองอีกครั้ง';
         } else if (error.message.includes('Duplicate') || error.message.includes('มีการลงคะแนน')) {
             errorMessage = 'มีการลงคะแนนด้วยรหัสพนักงานนี้แล้ว';
         }
